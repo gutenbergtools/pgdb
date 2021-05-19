@@ -261,7 +261,12 @@ FOR r2 IN SELECT attributes.text, attributes.nonfiling
        FROM attributes
        WHERE attributes.fk_books = r.pk
        AND attributes.fk_attriblist = ANY (ARRAY[240, 245, 246])
-       ORDER BY attributes.fk_attriblist LIMIT 1 LOOP
+       ORDER BY 
+              CASE WHEN attributes.fk_attriblist = 245
+              THEN 1
+              ELSE attributes.fk_attriblist
+              END       
+       LIMIT 1 LOOP
        RETURN r2;
 END LOOP;
 
@@ -600,7 +605,12 @@ CREATE FUNCTION public.books_title_update(_fk_books integer) RETURNS text
        FROM attributes
        WHERE attributes.fk_books = $1
        AND attributes.fk_attriblist = ANY (ARRAY[240, 245, 246])
-       ORDER BY attributes.fk_attriblist
+       -- take 245 first, the others if there is no 245 for this book.
+       ORDER BY 
+              CASE WHEN attributes.fk_attriblist = 245
+              THEN 1
+              ELSE attributes.fk_attriblist
+              END       
        LIMIT 1;
 $_$;
 
