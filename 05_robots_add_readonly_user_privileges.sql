@@ -9,19 +9,6 @@
 -- to that database.
 --
 
---
--- Grant user backupuser connect access to databases
---
-
-GRANT CONNECT ON DATABASE gutenberg TO backupuser;
-GRANT CONNECT ON DATABASE gutenberg_dev TO backupuser;
-GRANT CONNECT ON DATABASE postgres TO backupuser;
-
---
--- Grant user gutenberg the necessary privileges for the grants to backupuser
--- to succeed. Grant user backupuser read-only access to databases. 
---
-
 -- schema robots
 GRANT ALL ON ALL TABLES IN SCHEMA robots TO gutenberg;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA robots TO gutenberg;
