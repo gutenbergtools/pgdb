@@ -21,19 +21,17 @@ GRANT CONNECT ON DATABASE postgres TO backupuser;
 -- Grant user gutenberg the necessary privileges for the grants to backupuser
 -- to succeed. Grant user backupuser read-only access to databases. 
 --
+-- schema reviews
+GRANT ALL ON ALL TABLES IN SCHEMA reviews TO gutenberg;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA reviews TO gutenberg;
+ALTER DEFAULT PRIVILEGES IN SCHEMA reviews GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES IN SCHEMA reviews GRANT ALL ON SEQUENCES TO gutenberg;
 
--- schema public
-GRANT ALL ON ALL TABLES IN SCHEMA public TO gutenberg;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO gutenberg;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO gutenberg;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO gutenberg;
-
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO backupuser;
-GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO backupuser;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO backupuser;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO backupuser;
-GRANT USAGE ON SCHEMA public TO backupuser;
-
+GRANT SELECT ON ALL TABLES IN SCHEMA reviews TO backupuser;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA reviews TO backupuser;
+ALTER DEFAULT PRIVILEGES IN SCHEMA reviews GRANT SELECT ON TABLES TO backupuser;
+ALTER DEFAULT PRIVILEGES IN SCHEMA reviews GRANT SELECT ON SEQUENCES TO backupuser;
+GRANT USAGE ON SCHEMA reviews TO backupuser;
 
 --
 -- End of grants
