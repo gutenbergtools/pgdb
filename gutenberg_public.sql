@@ -2860,10 +2860,25 @@ ALTER TABLE ONLY public.tweets
 
 
 --
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+GRANT USAGE ON SCHEMA public TO backupuser;
+
+
+--
+-- Name: TABLE attributes; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.attributes TO backupuser;
+
+
+--
 -- Name: TABLE authors; Type: ACL; Schema: public; Owner: gutenberg
 --
 
 GRANT SELECT ON TABLE public.authors TO PUBLIC;
+GRANT SELECT ON TABLE public.authors TO backupuser;
 
 
 --
@@ -2871,6 +2886,14 @@ GRANT SELECT ON TABLE public.authors TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.books TO PUBLIC;
+GRANT SELECT ON TABLE public.books TO backupuser;
+
+
+--
+-- Name: TABLE bookshelves; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.bookshelves TO backupuser;
 
 
 --
@@ -2878,6 +2901,7 @@ GRANT SELECT ON TABLE public.books TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.subjects TO PUBLIC;
+GRANT SELECT ON TABLE public.subjects TO backupuser;
 
 
 --
@@ -2885,6 +2909,7 @@ GRANT SELECT ON TABLE public.subjects TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.aliases TO PUBLIC;
+GRANT SELECT ON TABLE public.aliases TO backupuser;
 
 
 --
@@ -2892,7 +2917,23 @@ GRANT SELECT ON TABLE public.aliases TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE public.aliases_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.aliases_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.aliases_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.aliases_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE attriblist; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.attriblist TO backupuser;
+
+
+--
+-- Name: SEQUENCE attributes_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.attributes_pk_seq TO backupuser;
 
 
 --
@@ -2900,6 +2941,7 @@ GRANT SELECT,UPDATE ON SEQUENCE public.aliases_pk_seq TO gutenberg WITH GRANT OP
 --
 
 GRANT SELECT ON TABLE public.author_urls TO PUBLIC;
+GRANT SELECT ON TABLE public.author_urls TO backupuser;
 
 
 --
@@ -2907,7 +2949,9 @@ GRANT SELECT ON TABLE public.author_urls TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE public.author_urls_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.author_urls_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.author_urls_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.author_urls_pk_seq TO backupuser;
 
 
 --
@@ -2915,7 +2959,37 @@ GRANT SELECT,UPDATE ON SEQUENCE public.author_urls_pk_seq TO gutenberg WITH GRAN
 --
 
 REVOKE ALL ON SEQUENCE public.authors_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.authors_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.authors_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.authors_pk_seq TO backupuser;
+
+
+--
+-- Name: SEQUENCE bookshelves_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.bookshelves_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE categories; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.categories TO backupuser;
+
+
+--
+-- Name: SEQUENCE categories_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.categories_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE changelog; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.changelog TO backupuser;
 
 
 --
@@ -2923,6 +2997,28 @@ GRANT SELECT,UPDATE ON SEQUENCE public.authors_pk_seq TO gutenberg WITH GRANT OP
 --
 
 GRANT SELECT ON TABLE public.compressions TO PUBLIC;
+GRANT SELECT ON TABLE public.compressions TO backupuser;
+
+
+--
+-- Name: TABLE dcmitypes; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.dcmitypes TO backupuser;
+
+
+--
+-- Name: SEQUENCE dcmitypes_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.dcmitypes_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE dpid; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.dpid TO backupuser;
 
 
 --
@@ -2930,6 +3026,14 @@ GRANT SELECT ON TABLE public.compressions TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.encodings TO PUBLIC;
+GRANT SELECT ON TABLE public.encodings TO backupuser;
+
+
+--
+-- Name: TABLE filecount; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.filecount TO backupuser;
 
 
 --
@@ -2937,6 +3041,7 @@ GRANT SELECT ON TABLE public.encodings TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.files TO PUBLIC;
+GRANT SELECT ON TABLE public.files TO backupuser;
 
 
 --
@@ -2944,7 +3049,9 @@ GRANT SELECT ON TABLE public.files TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE public.files_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.files_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.files_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.files_pk_seq TO backupuser;
 
 
 --
@@ -2952,6 +3059,14 @@ GRANT SELECT,UPDATE ON SEQUENCE public.files_pk_seq TO gutenberg WITH GRANT OPTI
 --
 
 GRANT SELECT ON TABLE public.filetypes TO PUBLIC;
+GRANT SELECT ON TABLE public.filetypes TO backupuser;
+
+
+--
+-- Name: TABLE fts; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.fts TO backupuser;
 
 
 --
@@ -2959,6 +3074,7 @@ GRANT SELECT ON TABLE public.filetypes TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.langs TO PUBLIC;
+GRANT SELECT ON TABLE public.langs TO backupuser;
 
 
 --
@@ -2966,6 +3082,7 @@ GRANT SELECT ON TABLE public.langs TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.loccs TO PUBLIC;
+GRANT SELECT ON TABLE public.loccs TO backupuser;
 
 
 --
@@ -2973,6 +3090,7 @@ GRANT SELECT ON TABLE public.loccs TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.mirrors TO PUBLIC;
+GRANT SELECT ON TABLE public.mirrors TO backupuser;
 
 
 --
@@ -2980,7 +3098,9 @@ GRANT SELECT ON TABLE public.mirrors TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE public.mirrors_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.mirrors_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.mirrors_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.mirrors_pk_seq TO backupuser;
 
 
 --
@@ -2988,6 +3108,21 @@ GRANT SELECT,UPDATE ON SEQUENCE public.mirrors_pk_seq TO gutenberg WITH GRANT OP
 --
 
 GRANT SELECT ON TABLE public.mn_books_authors TO PUBLIC;
+GRANT SELECT ON TABLE public.mn_books_authors TO backupuser;
+
+
+--
+-- Name: TABLE mn_books_bookshelves; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.mn_books_bookshelves TO backupuser;
+
+
+--
+-- Name: TABLE mn_books_categories; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.mn_books_categories TO backupuser;
 
 
 --
@@ -2995,6 +3130,7 @@ GRANT SELECT ON TABLE public.mn_books_authors TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.mn_books_langs TO PUBLIC;
+GRANT SELECT ON TABLE public.mn_books_langs TO backupuser;
 
 
 --
@@ -3002,6 +3138,7 @@ GRANT SELECT ON TABLE public.mn_books_langs TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.mn_books_loccs TO PUBLIC;
+GRANT SELECT ON TABLE public.mn_books_loccs TO backupuser;
 
 
 --
@@ -3009,6 +3146,35 @@ GRANT SELECT ON TABLE public.mn_books_loccs TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.mn_books_subjects TO PUBLIC;
+GRANT SELECT ON TABLE public.mn_books_subjects TO backupuser;
+
+
+--
+-- Name: TABLE mn_users_permissions; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.mn_users_permissions TO backupuser;
+
+
+--
+-- Name: TABLE permissions; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.permissions TO backupuser;
+
+
+--
+-- Name: SEQUENCE permissions_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.permissions_pk_seq TO backupuser;
+
+
+--
+-- Name: SEQUENCE revision_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.revision_seq TO backupuser;
 
 
 --
@@ -3016,6 +3182,7 @@ GRANT SELECT ON TABLE public.mn_books_subjects TO PUBLIC;
 --
 
 GRANT SELECT ON TABLE public.roles TO PUBLIC;
+GRANT SELECT ON TABLE public.roles TO backupuser;
 
 
 --
@@ -3023,7 +3190,104 @@ GRANT SELECT ON TABLE public.roles TO PUBLIC;
 --
 
 REVOKE ALL ON SEQUENCE public.subjects_pk_seq FROM gutenberg;
+GRANT USAGE ON SEQUENCE public.subjects_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.subjects_pk_seq TO gutenberg WITH GRANT OPTION;
+GRANT SELECT ON SEQUENCE public.subjects_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE tweets; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.tweets TO backupuser;
+
+
+--
+-- Name: TABLE users; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.users TO backupuser;
+
+
+--
+-- Name: SEQUENCE users_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON SEQUENCE public.users_pk_seq TO backupuser;
+
+
+--
+-- Name: TABLE v_appserver_books_4; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_appserver_books_4 TO backupuser;
+
+
+--
+-- Name: TABLE v_appserver_books_categories; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_appserver_books_categories TO backupuser;
+
+
+--
+-- Name: TABLE v_appserver_books_categories_2; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_appserver_books_categories_2 TO backupuser;
+
+
+--
+-- Name: TABLE v_appserver_books_categories_3; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_appserver_books_categories_3 TO backupuser;
+
+
+--
+-- Name: TABLE v_books_authors; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_books_authors TO backupuser;
+
+
+--
+-- Name: TABLE v_books_categories; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_books_categories TO backupuser;
+
+
+--
+-- Name: TABLE v_books_langs; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_books_langs TO backupuser;
+
+
+--
+-- Name: TABLE v_books; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.v_books TO backupuser;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON SEQUENCES  FROM postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES  TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON SEQUENCES  TO backupuser;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES  TO backupuser;
 
 
 --
