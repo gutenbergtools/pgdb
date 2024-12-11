@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.15
--- Dumped by pg_dump version 10.15
+-- Dumped from database version 10.23
+-- Dumped by pg_dump version 10.23
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1486,11 +1486,6 @@ CREATE TABLE public.files (
     diskstatus integer DEFAULT 0 NOT NULL,
     obsoleted integer DEFAULT 0 NOT NULL,
     edition integer,
-    md5hash bytea,
-    sha1hash bytea,
-    kzhash bytea,
-    ed2khash bytea,
-    tigertreehash bytea,
     note text,
     download integer DEFAULT 0
 );
@@ -3276,7 +3271,6 @@ GRANT SELECT ON TABLE public.v_books TO backupuser;
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON SEQUENCES  FROM postgres;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES  TO gutenberg;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON SEQUENCES  TO backupuser;
 
@@ -3285,7 +3279,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON SEQU
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM postgres;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO gutenberg;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES  TO backupuser;
 
