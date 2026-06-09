@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.15
--- Dumped by pg_dump version 10.15
+\restrict gHFfosYUAZjODLk0ePTvcQWfr0Blyk0zw02XMT9KKc9myFXKJZP3WnO4VxUxFzS
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +29,7 @@ ALTER SCHEMA reviews OWNER TO gutenberg;
 
 SET default_tablespace = '';
 
-SET default_with_oids = true;
+SET default_table_access_method = heap;
 
 --
 -- Name: reviewers; Type: TABLE; Schema: reviews; Owner: gutenberg
@@ -55,7 +57,7 @@ CREATE SEQUENCE reviews.reviewers_pk_seq
     CACHE 1;
 
 
-ALTER TABLE reviews.reviewers_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE reviews.reviewers_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: reviewers_pk_seq; Type: SEQUENCE OWNED BY; Schema: reviews; Owner: gutenberg
@@ -91,7 +93,7 @@ CREATE SEQUENCE reviews.reviews_pk_seq
     CACHE 1;
 
 
-ALTER TABLE reviews.reviews_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE reviews.reviews_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: reviews_pk_seq; Type: SEQUENCE OWNED BY; Schema: reviews; Owner: gutenberg
@@ -171,21 +173,21 @@ GRANT SELECT ON SEQUENCE reviews.reviews_pk_seq TO backupuser;
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: reviews; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews REVOKE ALL ON SEQUENCES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT ALL ON SEQUENCES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT SELECT ON SEQUENCES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT ALL ON SEQUENCES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT SELECT ON SEQUENCES TO backupuser;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: reviews; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews REVOKE ALL ON TABLES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT ALL ON TABLES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT SELECT ON TABLES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA reviews GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict gHFfosYUAZjODLk0ePTvcQWfr0Blyk0zw02XMT9KKc9myFXKJZP3WnO4VxUxFzS
 

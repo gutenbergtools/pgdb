@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.23
--- Dumped by pg_dump version 10.23
+\restrict 1bNdOMPkuChSVE7xa78akeC6C2SvVDOaAig43n4O503ifg76q7jD5j0zOjLMLtg
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +17,22 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
 
 --
 -- Name: gtrgm; Type: SHELL TYPE; Schema: public; Owner: postgres
@@ -62,7 +80,7 @@ ALTER TYPE public.gtrgm OWNER TO postgres;
 
 SET default_tablespace = '';
 
-SET default_with_oids = true;
+SET default_table_access_method = heap;
 
 --
 -- Name: attributes; Type: TABLE; Schema: public; Owner: gutenberg
@@ -354,8 +372,6 @@ $$;
 
 ALTER FUNCTION public._books_tsvec(r public.books) OWNER TO gutenberg;
 
-SET default_with_oids = false;
-
 --
 -- Name: bookshelves; Type: TABLE; Schema: public; Owner: gutenberg
 --
@@ -387,8 +403,6 @@ $$;
 
 
 ALTER FUNCTION public._bookshelves_tsvec(r public.bookshelves) OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: subjects; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1122,7 +1136,7 @@ ALTER FUNCTION public.subjects_tsvec_triggerfunc() OWNER TO gutenberg;
 --
 
 CREATE OPERATOR public.% (
-    PROCEDURE = public.similarity_op,
+    FUNCTION = public.similarity_op,
     LEFTARG = text,
     RIGHTARG = text,
     COMMUTATOR = OPERATOR(public.%),
@@ -1138,6 +1152,10 @@ ALTER OPERATOR public.% (text, text) OWNER TO postgres;
 --
 
 CREATE OPERATOR FAMILY public.gin_trgm_ops USING gin;
+ALTER OPERATOR FAMILY public.gin_trgm_ops USING gin ADD
+    OPERATOR 1 public.%(text,text) ,
+    FUNCTION 1 (text, text) btint4cmp(integer,integer) ,
+    FUNCTION 4 (text, text) public.gin_trgm_consistent(internal,smallint,text,integer,internal,internal);
 
 
 ALTER OPERATOR FAMILY public.gin_trgm_ops USING gin OWNER TO postgres;
@@ -1149,11 +1167,8 @@ ALTER OPERATOR FAMILY public.gin_trgm_ops USING gin OWNER TO postgres;
 CREATE OPERATOR CLASS public.gin_trgm_ops
     FOR TYPE text USING gin FAMILY public.gin_trgm_ops AS
     STORAGE integer ,
-    OPERATOR 1 public.%(text,text) ,
-    FUNCTION 1 (text, text) btint4cmp(integer,integer) ,
     FUNCTION 2 (text, text) public.gin_extract_trgm(text,internal) ,
-    FUNCTION 3 (text, text) public.gin_extract_trgm(text,internal,smallint,internal,internal) ,
-    FUNCTION 4 (text, text) public.gin_trgm_consistent(internal,smallint,text,integer,internal,internal);
+    FUNCTION 3 (text, text) public.gin_extract_trgm(text,internal,smallint,internal,internal);
 
 
 ALTER OPERATOR CLASS public.gin_trgm_ops USING gin OWNER TO postgres;
@@ -1163,6 +1178,10 @@ ALTER OPERATOR CLASS public.gin_trgm_ops USING gin OWNER TO postgres;
 --
 
 CREATE OPERATOR FAMILY public.gist_trgm_ops USING gist;
+ALTER OPERATOR FAMILY public.gist_trgm_ops USING gist ADD
+    OPERATOR 1 public.%(text,text) ,
+    FUNCTION 3 (text, text) public.gtrgm_compress(internal) ,
+    FUNCTION 4 (text, text) public.gtrgm_decompress(internal);
 
 
 ALTER OPERATOR FAMILY public.gist_trgm_ops USING gist OWNER TO postgres;
@@ -1174,11 +1193,8 @@ ALTER OPERATOR FAMILY public.gist_trgm_ops USING gist OWNER TO postgres;
 CREATE OPERATOR CLASS public.gist_trgm_ops
     FOR TYPE text USING gist FAMILY public.gist_trgm_ops AS
     STORAGE public.gtrgm ,
-    OPERATOR 1 public.%(text,text) ,
     FUNCTION 1 (text, text) public.gtrgm_consistent(internal,text,integer,oid,internal) ,
     FUNCTION 2 (text, text) public.gtrgm_union(bytea,internal) ,
-    FUNCTION 3 (text, text) public.gtrgm_compress(internal) ,
-    FUNCTION 4 (text, text) public.gtrgm_decompress(internal) ,
     FUNCTION 5 (text, text) public.gtrgm_penalty(internal,internal,internal) ,
     FUNCTION 6 (text, text) public.gtrgm_picksplit(internal,internal) ,
     FUNCTION 7 (text, text) public.gtrgm_same(public.gtrgm,public.gtrgm,internal);
@@ -1212,7 +1228,7 @@ CREATE SEQUENCE public.aliases_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.aliases_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.aliases_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: aliases_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1249,7 +1265,7 @@ CREATE SEQUENCE public.attributes_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.attributes_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.attributes_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: attributes_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1284,7 +1300,7 @@ CREATE SEQUENCE public.author_urls_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.author_urls_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.author_urls_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: author_urls_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1305,7 +1321,7 @@ CREATE SEQUENCE public.authors_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.authors_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.authors_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: authors_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1326,7 +1342,7 @@ CREATE SEQUENCE public.bookshelves_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.bookshelves_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.bookshelves_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: bookshelves_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1360,7 +1376,7 @@ CREATE SEQUENCE public.categories_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.categories_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.categories_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: categories_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1396,8 +1412,6 @@ CREATE TABLE public.compressions (
 
 ALTER TABLE public.compressions OWNER TO gutenberg;
 
-SET default_with_oids = false;
-
 --
 -- Name: dcmitypes; Type: TABLE; Schema: public; Owner: gutenberg
 --
@@ -1423,7 +1437,7 @@ CREATE SEQUENCE public.dcmitypes_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.dcmitypes_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.dcmitypes_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: dcmitypes_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1443,8 +1457,6 @@ CREATE TABLE public.dpid (
 
 
 ALTER TABLE public.dpid OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: encodings; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1505,7 +1517,7 @@ CREATE SEQUENCE public.files_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.files_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.files_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: files_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1530,8 +1542,6 @@ CREATE TABLE public.filetypes (
 
 ALTER TABLE public.filetypes OWNER TO gutenberg;
 
-SET default_with_oids = false;
-
 --
 -- Name: fts; Type: TABLE; Schema: public; Owner: gutenberg
 --
@@ -1542,8 +1552,6 @@ CREATE TABLE public.fts (
 
 
 ALTER TABLE public.fts OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: langs; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1600,7 +1608,7 @@ CREATE SEQUENCE public.mirrors_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.mirrors_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.mirrors_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: mirrors_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1623,8 +1631,6 @@ CREATE TABLE public.mn_books_authors (
 
 ALTER TABLE public.mn_books_authors OWNER TO gutenberg;
 
-SET default_with_oids = false;
-
 --
 -- Name: mn_books_bookshelves; Type: TABLE; Schema: public; Owner: gutenberg
 --
@@ -1636,8 +1642,6 @@ CREATE TABLE public.mn_books_bookshelves (
 
 
 ALTER TABLE public.mn_books_bookshelves OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: mn_books_categories; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1724,7 +1728,7 @@ CREATE SEQUENCE public.permissions_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.permissions_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.permissions_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: permissions_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1745,7 +1749,7 @@ CREATE SEQUENCE public.revision_seq
     CACHE 1;
 
 
-ALTER TABLE public.revision_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.revision_seq OWNER TO gutenberg;
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1772,7 +1776,7 @@ CREATE SEQUENCE public.subjects_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.subjects_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.subjects_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: subjects_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1780,8 +1784,6 @@ ALTER TABLE public.subjects_pk_seq OWNER TO gutenberg;
 
 ALTER SEQUENCE public.subjects_pk_seq OWNED BY public.subjects.pk;
 
-
-SET default_with_oids = false;
 
 --
 -- Name: terms; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1808,8 +1810,6 @@ CREATE TABLE public.tweets (
 
 
 ALTER TABLE public.tweets OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1838,7 +1838,7 @@ CREATE SEQUENCE public.users_pk_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE public.users_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: users_pk_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gutenberg
@@ -1852,12 +1852,12 @@ ALTER SEQUENCE public.users_pk_seq OWNED BY public.users.pk;
 --
 
 CREATE VIEW public.v_appserver_books_4 AS
- SELECT books.pk,
-    books.title,
-    public.filing(books.title, books.nonfiling) AS filing,
-    books.release_date,
-    books.downloads,
-    books.tsvec,
+ SELECT pk,
+    title,
+    public.filing(title, nonfiling) AS filing,
+    release_date,
+    downloads,
+    tsvec,
     ( SELECT array_agg(authors.author) AS array_agg
            FROM public.authors,
             public.mn_books_authors
@@ -1874,35 +1874,35 @@ CREATE VIEW public.v_appserver_books_4 AS
    FROM public.books;
 
 
-ALTER TABLE public.v_appserver_books_4 OWNER TO gutenberg;
+ALTER VIEW public.v_appserver_books_4 OWNER TO gutenberg;
 
 --
 -- Name: v_appserver_books_categories; Type: VIEW; Schema: public; Owner: gutenberg
 --
 
 CREATE VIEW public.v_appserver_books_categories AS
- SELECT books.pk,
-    books.title,
-    books.release_date,
-    books.downloads,
+ SELECT pk,
+    title,
+    release_date,
+    downloads,
     (EXISTS ( SELECT mn_books_categories.fk_categories
            FROM public.mn_books_categories
           WHERE (books.pk = mn_books_categories.fk_books))) AS category
    FROM public.books;
 
 
-ALTER TABLE public.v_appserver_books_categories OWNER TO gutenberg;
+ALTER VIEW public.v_appserver_books_categories OWNER TO gutenberg;
 
 --
 -- Name: v_appserver_books_categories_2; Type: VIEW; Schema: public; Owner: gutenberg
 --
 
 CREATE VIEW public.v_appserver_books_categories_2 AS
- SELECT books.pk,
-    books.title,
-    books.release_date,
-    books.downloads,
-    books.tsvec,
+ SELECT pk,
+    title,
+    release_date,
+    downloads,
+    tsvec,
     ( SELECT array_agg(authors.author) AS array_agg
            FROM public.authors,
             public.mn_books_authors
@@ -1913,18 +1913,18 @@ CREATE VIEW public.v_appserver_books_categories_2 AS
    FROM public.books;
 
 
-ALTER TABLE public.v_appserver_books_categories_2 OWNER TO gutenberg;
+ALTER VIEW public.v_appserver_books_categories_2 OWNER TO gutenberg;
 
 --
 -- Name: v_appserver_books_categories_3; Type: VIEW; Schema: public; Owner: gutenberg
 --
 
 CREATE VIEW public.v_appserver_books_categories_3 AS
- SELECT books.pk,
-    books.title,
-    books.release_date,
-    books.downloads,
-    books.tsvec,
+ SELECT pk,
+    title,
+    release_date,
+    downloads,
+    tsvec,
     ( SELECT array_agg(authors.author) AS array_agg
            FROM public.authors,
             public.mn_books_authors
@@ -1938,7 +1938,7 @@ CREATE VIEW public.v_appserver_books_categories_3 AS
    FROM public.books;
 
 
-ALTER TABLE public.v_appserver_books_categories_3 OWNER TO gutenberg;
+ALTER VIEW public.v_appserver_books_categories_3 OWNER TO gutenberg;
 
 --
 -- Name: v_books_authors; Type: VIEW; Schema: public; Owner: gutenberg
@@ -1959,14 +1959,14 @@ CREATE VIEW public.v_books_authors AS
      JOIN public.roles ON (((mn_books_authors.fk_roles)::text = (roles.pk)::text)));
 
 
-ALTER TABLE public.v_books_authors OWNER TO gutenberg;
+ALTER VIEW public.v_books_authors OWNER TO gutenberg;
 
 --
 -- Name: v_books_categories; Type: VIEW; Schema: public; Owner: gutenberg
 --
 
 CREATE VIEW public.v_books_categories AS
- SELECT mn_books_categories.fk_books,
+ SELECT fk_books,
     (EXISTS ( SELECT sub.fk_categories
            FROM public.mn_books_categories sub
           WHERE ((sub.fk_books = mn_books_categories.fk_books) AND ((sub.fk_categories >= 1) AND (sub.fk_categories <= 3))))) AS is_audio,
@@ -1976,7 +1976,7 @@ CREATE VIEW public.v_books_categories AS
    FROM public.mn_books_categories;
 
 
-ALTER TABLE public.v_books_categories OWNER TO gutenberg;
+ALTER VIEW public.v_books_categories OWNER TO gutenberg;
 
 --
 -- Name: v_books_langs; Type: VIEW; Schema: public; Owner: gutenberg
@@ -1990,7 +1990,7 @@ CREATE VIEW public.v_books_langs AS
      JOIN public.langs ON (((mn_books_langs.fk_langs)::text = (langs.pk)::text)));
 
 
-ALTER TABLE public.v_books_langs OWNER TO gutenberg;
+ALTER VIEW public.v_books_langs OWNER TO gutenberg;
 
 --
 -- Name: v_books; Type: VIEW; Schema: public; Owner: gutenberg
@@ -2020,7 +2020,7 @@ CREATE VIEW public.v_books AS
   WHERE (attributes.fk_attriblist = 245);
 
 
-ALTER TABLE public.v_books OWNER TO gutenberg;
+ALTER VIEW public.v_books OWNER TO gutenberg;
 
 --
 -- Name: bookshelves pk; Type: DEFAULT; Schema: public; Owner: gutenberg
@@ -2560,98 +2560,98 @@ CREATE INDEX tsvecidx_subjects ON public.subjects USING gin (tsvec);
 -- Name: attributes _1_attributes_tsvec; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _1_attributes_tsvec BEFORE INSERT OR UPDATE ON public.attributes FOR EACH ROW EXECUTE PROCEDURE public.attributes_tsvec_triggerfunc();
+CREATE TRIGGER _1_attributes_tsvec BEFORE INSERT OR UPDATE ON public.attributes FOR EACH ROW EXECUTE FUNCTION public.attributes_tsvec_triggerfunc();
 
 
 --
 -- Name: attributes _1_books_title; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _1_books_title AFTER INSERT OR DELETE OR UPDATE ON public.attributes FOR EACH ROW EXECUTE PROCEDURE public.books_title_triggerfunc();
+CREATE TRIGGER _1_books_title AFTER INSERT OR DELETE OR UPDATE ON public.attributes FOR EACH ROW EXECUTE FUNCTION public.books_title_triggerfunc();
 
 
 --
 -- Name: books _1_books_tsvec; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _1_books_tsvec BEFORE INSERT OR UPDATE ON public.books FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_triggerfunc();
+CREATE TRIGGER _1_books_tsvec BEFORE INSERT OR UPDATE ON public.books FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_triggerfunc();
 
 
 --
 -- Name: bookshelves _1_bookshelves_tsvec; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _1_bookshelves_tsvec BEFORE INSERT OR UPDATE ON public.bookshelves FOR EACH ROW EXECUTE PROCEDURE public.bookshelves_tsvec_triggerfunc();
+CREATE TRIGGER _1_bookshelves_tsvec BEFORE INSERT OR UPDATE ON public.bookshelves FOR EACH ROW EXECUTE FUNCTION public.bookshelves_tsvec_triggerfunc();
 
 
 --
 -- Name: subjects _1_subjects_tsvec; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _1_subjects_tsvec BEFORE INSERT OR UPDATE ON public.subjects FOR EACH ROW EXECUTE PROCEDURE public.subjects_tsvec_triggerfunc();
+CREATE TRIGGER _1_subjects_tsvec BEFORE INSERT OR UPDATE ON public.subjects FOR EACH ROW EXECUTE FUNCTION public.subjects_tsvec_triggerfunc();
 
 
 --
 -- Name: authors _2_authors_tsvec; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_authors_tsvec BEFORE INSERT OR UPDATE ON public.authors FOR EACH ROW EXECUTE PROCEDURE public.authors_tsvec_triggerfunc();
+CREATE TRIGGER _2_authors_tsvec BEFORE INSERT OR UPDATE ON public.authors FOR EACH ROW EXECUTE FUNCTION public.authors_tsvec_triggerfunc();
 
 
 --
 -- Name: aliases _2_authors_tsvec_aliases; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_authors_tsvec_aliases AFTER INSERT OR DELETE OR UPDATE ON public.aliases FOR EACH ROW EXECUTE PROCEDURE public.authors_tsvec_alias_triggerfunc();
+CREATE TRIGGER _2_authors_tsvec_aliases AFTER INSERT OR DELETE OR UPDATE ON public.aliases FOR EACH ROW EXECUTE FUNCTION public.authors_tsvec_alias_triggerfunc();
 
 
 --
 -- Name: attributes _2_books_tsvec_attributes; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_attributes AFTER INSERT OR DELETE OR UPDATE ON public.attributes FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_mn_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_attributes AFTER INSERT OR DELETE OR UPDATE ON public.attributes FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_mn_triggerfunc();
 
 
 --
 -- Name: authors _2_books_tsvec_authors; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_authors AFTER UPDATE ON public.authors FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_1n_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_authors AFTER UPDATE ON public.authors FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_1n_triggerfunc();
 
 
 --
 -- Name: bookshelves _2_books_tsvec_bookshelves; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_bookshelves AFTER UPDATE ON public.bookshelves FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_1n_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_bookshelves AFTER UPDATE ON public.bookshelves FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_1n_triggerfunc();
 
 
 --
 -- Name: mn_books_authors _2_books_tsvec_mn_books_authors; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_mn_books_authors AFTER INSERT OR DELETE ON public.mn_books_authors FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_mn_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_mn_books_authors AFTER INSERT OR DELETE ON public.mn_books_authors FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_mn_triggerfunc();
 
 
 --
 -- Name: mn_books_bookshelves _2_books_tsvec_mn_books_bookshelves; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_mn_books_bookshelves AFTER INSERT OR DELETE ON public.mn_books_bookshelves FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_mn_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_mn_books_bookshelves AFTER INSERT OR DELETE ON public.mn_books_bookshelves FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_mn_triggerfunc();
 
 
 --
 -- Name: mn_books_subjects _2_books_tsvec_mn_books_subjects; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_mn_books_subjects AFTER INSERT OR DELETE ON public.mn_books_subjects FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_mn_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_mn_books_subjects AFTER INSERT OR DELETE ON public.mn_books_subjects FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_mn_triggerfunc();
 
 
 --
 -- Name: subjects _2_books_tsvec_subjects; Type: TRIGGER; Schema: public; Owner: gutenberg
 --
 
-CREATE TRIGGER _2_books_tsvec_subjects AFTER UPDATE ON public.subjects FOR EACH ROW EXECUTE PROCEDURE public.books_tsvec_1n_triggerfunc();
+CREATE TRIGGER _2_books_tsvec_subjects AFTER UPDATE ON public.subjects FOR EACH ROW EXECUTE FUNCTION public.books_tsvec_1n_triggerfunc();
 
 
 --
@@ -2671,14 +2671,6 @@ ALTER TABLE ONLY public.author_urls
 
 
 --
--- Name: mn_users_permissions $1; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
---
-
-ALTER TABLE ONLY public.mn_users_permissions
-    ADD CONSTRAINT "$1" FOREIGN KEY (fk_users) REFERENCES public.users(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: files $1; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
 --
 
@@ -2687,11 +2679,43 @@ ALTER TABLE ONLY public.files
 
 
 --
+-- Name: mn_users_permissions $1; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+--
+
+ALTER TABLE ONLY public.mn_users_permissions
+    ADD CONSTRAINT "$1" FOREIGN KEY (fk_users) REFERENCES public.users(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: attributes $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+--
+
+ALTER TABLE ONLY public.attributes
+    ADD CONSTRAINT "$2" FOREIGN KEY (fk_attriblist) REFERENCES public.attriblist(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: files $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+--
+
+ALTER TABLE ONLY public.files
+    ADD CONSTRAINT "$2" FOREIGN KEY (fk_encodings) REFERENCES public.encodings(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: mn_books_authors $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
 --
 
 ALTER TABLE ONLY public.mn_books_authors
     ADD CONSTRAINT "$2" FOREIGN KEY (fk_authors) REFERENCES public.authors(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: mn_books_categories $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+--
+
+ALTER TABLE ONLY public.mn_books_categories
+    ADD CONSTRAINT "$2" FOREIGN KEY (fk_categories) REFERENCES public.categories(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2719,22 +2743,6 @@ ALTER TABLE ONLY public.mn_books_subjects
 
 
 --
--- Name: mn_books_categories $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
---
-
-ALTER TABLE ONLY public.mn_books_categories
-    ADD CONSTRAINT "$2" FOREIGN KEY (fk_categories) REFERENCES public.categories(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: files $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
---
-
-ALTER TABLE ONLY public.files
-    ADD CONSTRAINT "$2" FOREIGN KEY (fk_encodings) REFERENCES public.encodings(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: mn_users_permissions $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
 --
 
@@ -2743,19 +2751,11 @@ ALTER TABLE ONLY public.mn_users_permissions
 
 
 --
--- Name: attributes $2; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+-- Name: attributes $3; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
 --
 
 ALTER TABLE ONLY public.attributes
-    ADD CONSTRAINT "$2" FOREIGN KEY (fk_attriblist) REFERENCES public.attriblist(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: mn_books_authors $3; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
---
-
-ALTER TABLE ONLY public.mn_books_authors
-    ADD CONSTRAINT "$3" FOREIGN KEY (fk_roles) REFERENCES public.roles(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "$3" FOREIGN KEY (fk_langs) REFERENCES public.langs(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2767,11 +2767,11 @@ ALTER TABLE ONLY public.files
 
 
 --
--- Name: attributes $3; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
+-- Name: mn_books_authors $3; Type: FK CONSTRAINT; Schema: public; Owner: gutenberg
 --
 
-ALTER TABLE ONLY public.attributes
-    ADD CONSTRAINT "$3" FOREIGN KEY (fk_langs) REFERENCES public.langs(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.mn_books_authors
+    ADD CONSTRAINT "$3" FOREIGN KEY (fk_roles) REFERENCES public.roles(pk) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2858,6 +2858,8 @@ ALTER TABLE ONLY public.tweets
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 GRANT USAGE ON SCHEMA public TO backupuser;
 
 
@@ -3191,6 +3193,13 @@ GRANT SELECT ON SEQUENCE public.subjects_pk_seq TO backupuser;
 
 
 --
+-- Name: TABLE terms; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.terms TO backupuser;
+
+
+--
 -- Name: TABLE tweets; Type: ACL; Schema: public; Owner: gutenberg
 --
 
@@ -3268,22 +3277,38 @@ GRANT SELECT ON TABLE public.v_books TO backupuser;
 
 
 --
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: gutenberg
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE gutenberg IN SCHEMA public GRANT SELECT ON SEQUENCES TO backupuser;
+
+
+--
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON SEQUENCES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON SEQUENCES TO backupuser;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: gutenberg
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE gutenberg IN SCHEMA public GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict 1bNdOMPkuChSVE7xa78akeC6C2SvVDOaAig43n4O503ifg76q7jD5j0zOjLMLtg
 

@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.15
--- Dumped by pg_dump version 10.15
+\restrict LdbYlqcfjK8PZroGhA8DFS2xHtwhw1cL7O4oUet6pxVYQKRD1Gl9dnHctIov26t
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +29,7 @@ ALTER SCHEMA scores OWNER TO gutenberg;
 
 SET default_tablespace = '';
 
-SET default_with_oids = true;
+SET default_table_access_method = heap;
 
 --
 -- Name: also_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -54,9 +56,7 @@ CREATE SEQUENCE scores.also_downloads_id_seq
     CACHE 1;
 
 
-ALTER TABLE scores.also_downloads_id_seq OWNER TO gutenberg;
-
-SET default_with_oids = false;
+ALTER SEQUENCE scores.also_downloads_id_seq OWNER TO gutenberg;
 
 --
 -- Name: author_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -70,8 +70,6 @@ CREATE TABLE scores.author_downloads (
 
 
 ALTER TABLE scores.author_downloads OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: book_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -99,7 +97,7 @@ CREATE SEQUENCE scores.book_downloads_pk_seq
     CACHE 1;
 
 
-ALTER TABLE scores.book_downloads_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE scores.book_downloads_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: book_downloads_pk_seq; Type: SEQUENCE OWNED BY; Schema: scores; Owner: gutenberg
@@ -107,8 +105,6 @@ ALTER TABLE scores.book_downloads_pk_seq OWNER TO gutenberg;
 
 ALTER SEQUENCE scores.book_downloads_pk_seq OWNED BY scores.book_downloads.pk;
 
-
-SET default_with_oids = false;
 
 --
 -- Name: bookshelf_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -122,8 +118,6 @@ CREATE TABLE scores.bookshelf_downloads (
 
 
 ALTER TABLE scores.bookshelf_downloads OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: file_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -151,7 +145,7 @@ CREATE SEQUENCE scores.file_downloads_pk_seq
     CACHE 1;
 
 
-ALTER TABLE scores.file_downloads_pk_seq OWNER TO gutenberg;
+ALTER SEQUENCE scores.file_downloads_pk_seq OWNER TO gutenberg;
 
 --
 -- Name: file_downloads_pk_seq; Type: SEQUENCE OWNED BY; Schema: scores; Owner: gutenberg
@@ -159,8 +153,6 @@ ALTER TABLE scores.file_downloads_pk_seq OWNER TO gutenberg;
 
 ALTER SEQUENCE scores.file_downloads_pk_seq OWNED BY scores.file_downloads.pk;
 
-
-SET default_with_oids = false;
 
 --
 -- Name: filetype_downloads; Type: TABLE; Schema: scores; Owner: gutenberg
@@ -193,14 +185,14 @@ ALTER TABLE scores.subject_downloads OWNER TO gutenberg;
 --
 
 CREATE VIEW scores.v_by_filetype AS
- SELECT filetype_downloads.fk_filetypes AS filetypes,
-    sum(filetype_downloads.downloads) AS downloads
+ SELECT fk_filetypes AS filetypes,
+    sum(downloads) AS downloads
    FROM scores.filetype_downloads
-  GROUP BY filetype_downloads.fk_filetypes
-  ORDER BY (sum(filetype_downloads.downloads)) DESC;
+  GROUP BY fk_filetypes
+  ORDER BY (sum(downloads)) DESC;
 
 
-ALTER TABLE scores.v_by_filetype OWNER TO gutenberg;
+ALTER VIEW scores.v_by_filetype OWNER TO gutenberg;
 
 --
 -- Name: book_downloads book_downloads_pkey; Type: CONSTRAINT; Schema: scores; Owner: gutenberg
@@ -271,11 +263,11 @@ CREATE UNIQUE INDEX ix_file_downloads_date_fk_files ON scores.file_downloads USI
 
 
 --
--- Name: file_downloads $1; Type: FK CONSTRAINT; Schema: scores; Owner: gutenberg
+-- Name: also_downloads $1; Type: FK CONSTRAINT; Schema: scores; Owner: gutenberg
 --
 
-ALTER TABLE ONLY scores.file_downloads
-    ADD CONSTRAINT "$1" FOREIGN KEY (fk_files) REFERENCES public.files(pk) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY scores.also_downloads
+    ADD CONSTRAINT "$1" FOREIGN KEY (fk_books) REFERENCES public.books(pk) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -287,11 +279,11 @@ ALTER TABLE ONLY scores.book_downloads
 
 
 --
--- Name: also_downloads $1; Type: FK CONSTRAINT; Schema: scores; Owner: gutenberg
+-- Name: file_downloads $1; Type: FK CONSTRAINT; Schema: scores; Owner: gutenberg
 --
 
-ALTER TABLE ONLY scores.also_downloads
-    ADD CONSTRAINT "$1" FOREIGN KEY (fk_books) REFERENCES public.books(pk) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY scores.file_downloads
+    ADD CONSTRAINT "$1" FOREIGN KEY (fk_files) REFERENCES public.files(pk) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -414,21 +406,21 @@ GRANT SELECT ON TABLE scores.v_by_filetype TO backupuser;
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: scores; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores REVOKE ALL ON SEQUENCES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT ALL ON SEQUENCES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT SELECT ON SEQUENCES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT ALL ON SEQUENCES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT SELECT ON SEQUENCES TO backupuser;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: scores; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores REVOKE ALL ON TABLES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT ALL ON TABLES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT SELECT ON TABLES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA scores GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict LdbYlqcfjK8PZroGhA8DFS2xHtwhw1cL7O4oUet6pxVYQKRD1Gl9dnHctIov26t
 
