@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.15
--- Dumped by pg_dump version 10.15
+\restrict Q0U9at2UkpRQhORybJQiYpFxheoQXCHm6k4yCzwg1oUFvhnLKd3e1Vk8kwx1v0x
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +29,7 @@ ALTER SCHEMA robots OWNER TO gutenberg;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: blocks; Type: TABLE; Schema: robots; Owner: gutenberg
@@ -60,8 +62,6 @@ CREATE TABLE robots.blocks (
 
 
 ALTER TABLE robots.blocks OWNER TO gutenberg;
-
-SET default_with_oids = true;
 
 --
 -- Name: ips; Type: TABLE; Schema: robots; Owner: gutenberg
@@ -127,21 +127,21 @@ GRANT SELECT ON TABLE robots.ips TO backupuser;
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: robots; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots REVOKE ALL ON SEQUENCES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT ALL ON SEQUENCES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT SELECT ON SEQUENCES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT ALL ON SEQUENCES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT SELECT ON SEQUENCES TO backupuser;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: robots; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots REVOKE ALL ON TABLES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT ALL ON TABLES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT SELECT ON TABLES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA robots GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict Q0U9at2UkpRQhORybJQiYpFxheoQXCHm6k4yCzwg1oUFvhnLKd3e1Vk8kwx1v0x
 

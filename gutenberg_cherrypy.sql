@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.15
--- Dumped by pg_dump version 10.15
+\restrict UMt73ESqVe7o8J7zcvliweREUjw3gzchLSdodf4zZCpWvDSaiEU2k2cNzGWuUbJ
+
+-- Dumped from database version 16.13
+-- Dumped by pg_dump version 16.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +29,7 @@ ALTER SCHEMA cherrypy OWNER TO gutenberg;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: sessions; Type: TABLE; Schema: cherrypy; Owner: gutenberg
@@ -68,21 +70,21 @@ GRANT SELECT ON TABLE cherrypy.sessions TO backupuser;
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: cherrypy; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy REVOKE ALL ON SEQUENCES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT ALL ON SEQUENCES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT SELECT ON SEQUENCES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT ALL ON SEQUENCES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT SELECT ON SEQUENCES TO backupuser;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: cherrypy; Owner: postgres
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy REVOKE ALL ON TABLES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT ALL ON TABLES  TO gutenberg;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT SELECT ON TABLES  TO backupuser;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT ALL ON TABLES TO gutenberg;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA cherrypy GRANT SELECT ON TABLES TO backupuser;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict UMt73ESqVe7o8J7zcvliweREUjw3gzchLSdodf4zZCpWvDSaiEU2k2cNzGWuUbJ
 
