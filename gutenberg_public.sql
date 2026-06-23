@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1bNdOMPkuChSVE7xa78akeC6C2SvVDOaAig43n4O503ifg76q7jD5j0zOjLMLtg
+\restrict 5lhHjOAwSxYf12EiMmDlnVg1mUVGsX8dzavmUkP7mQgN5XogS7VnHDMenrHMuBA
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -22,61 +22,24 @@ SET row_security = off;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
-CREATE SCHEMA public;
+-- *not* creating schema, since initdb creates it
 
 
 ALTER SCHEMA public OWNER TO postgres;
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
 --
 
-COMMENT ON SCHEMA public IS 'standard public schema';
-
-
---
--- Name: gtrgm; Type: SHELL TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.gtrgm;
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- Name: gtrgm_in(cstring); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
 --
 
-CREATE FUNCTION public.gtrgm_in(cstring) RETURNS public.gtrgm
-    LANGUAGE c STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_in';
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
-
-ALTER FUNCTION public.gtrgm_in(cstring) OWNER TO postgres;
-
---
--- Name: gtrgm_out(public.gtrgm); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_out(public.gtrgm) RETURNS cstring
-    LANGUAGE c STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_out';
-
-
-ALTER FUNCTION public.gtrgm_out(public.gtrgm) OWNER TO postgres;
-
---
--- Name: gtrgm; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.gtrgm (
-    INTERNALLENGTH = variable,
-    INPUT = public.gtrgm_in,
-    OUTPUT = public.gtrgm_out,
-    ALIGNMENT = int4,
-    STORAGE = plain
-);
-
-
-ALTER TYPE public.gtrgm OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -857,116 +820,6 @@ $$;
 ALTER FUNCTION public.filing(title text, nonfiling integer) OWNER TO gutenberg;
 
 --
--- Name: gin_extract_trgm(text, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gin_extract_trgm(text, internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gin_extract_trgm';
-
-
-ALTER FUNCTION public.gin_extract_trgm(text, internal) OWNER TO postgres;
-
---
--- Name: gin_extract_trgm(text, internal, smallint, internal, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gin_extract_trgm(text, internal, smallint, internal, internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gin_extract_trgm';
-
-
-ALTER FUNCTION public.gin_extract_trgm(text, internal, smallint, internal, internal) OWNER TO postgres;
-
---
--- Name: gin_trgm_consistent(internal, smallint, text, integer, internal, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gin_trgm_consistent(internal, smallint, text, integer, internal, internal) RETURNS boolean
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gin_trgm_consistent';
-
-
-ALTER FUNCTION public.gin_trgm_consistent(internal, smallint, text, integer, internal, internal) OWNER TO postgres;
-
---
--- Name: gtrgm_compress(internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_compress(internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_compress';
-
-
-ALTER FUNCTION public.gtrgm_compress(internal) OWNER TO postgres;
-
---
--- Name: gtrgm_consistent(internal, text, integer, oid, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_consistent(internal, text, integer, oid, internal) RETURNS boolean
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_consistent';
-
-
-ALTER FUNCTION public.gtrgm_consistent(internal, text, integer, oid, internal) OWNER TO postgres;
-
---
--- Name: gtrgm_decompress(internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_decompress(internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_decompress';
-
-
-ALTER FUNCTION public.gtrgm_decompress(internal) OWNER TO postgres;
-
---
--- Name: gtrgm_penalty(internal, internal, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_penalty(internal, internal, internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_penalty';
-
-
-ALTER FUNCTION public.gtrgm_penalty(internal, internal, internal) OWNER TO postgres;
-
---
--- Name: gtrgm_picksplit(internal, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_picksplit(internal, internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_picksplit';
-
-
-ALTER FUNCTION public.gtrgm_picksplit(internal, internal) OWNER TO postgres;
-
---
--- Name: gtrgm_same(public.gtrgm, public.gtrgm, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_same(public.gtrgm, public.gtrgm, internal) RETURNS internal
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_same';
-
-
-ALTER FUNCTION public.gtrgm_same(public.gtrgm, public.gtrgm, internal) OWNER TO postgres;
-
---
--- Name: gtrgm_union(bytea, internal); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.gtrgm_union(bytea, internal) RETURNS integer[]
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'gtrgm_union';
-
-
-ALTER FUNCTION public.gtrgm_union(bytea, internal) OWNER TO postgres;
-
---
 -- Name: pf(text, text); Type: FUNCTION; Schema: public; Owner: gutenberg
 --
 
@@ -1057,61 +910,6 @@ $$;
 ALTER FUNCTION public.pxtest(p text, t text) OWNER TO gutenberg;
 
 --
--- Name: set_limit(real); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.set_limit(real) RETURNS real
-    LANGUAGE c STRICT
-    AS '$libdir/pg_trgm', 'set_limit';
-
-
-ALTER FUNCTION public.set_limit(real) OWNER TO postgres;
-
---
--- Name: show_limit(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.show_limit() RETURNS real
-    LANGUAGE c STABLE STRICT
-    AS '$libdir/pg_trgm', 'show_limit';
-
-
-ALTER FUNCTION public.show_limit() OWNER TO postgres;
-
---
--- Name: show_trgm(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.show_trgm(text) RETURNS text[]
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'show_trgm';
-
-
-ALTER FUNCTION public.show_trgm(text) OWNER TO postgres;
-
---
--- Name: similarity(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.similarity(text, text) RETURNS real
-    LANGUAGE c IMMUTABLE STRICT
-    AS '$libdir/pg_trgm', 'similarity';
-
-
-ALTER FUNCTION public.similarity(text, text) OWNER TO postgres;
-
---
--- Name: similarity_op(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.similarity_op(text, text) RETURNS boolean
-    LANGUAGE c STABLE STRICT
-    AS '$libdir/pg_trgm', 'similarity_op';
-
-
-ALTER FUNCTION public.similarity_op(text, text) OWNER TO postgres;
-
---
 -- Name: subjects_tsvec_triggerfunc(); Type: FUNCTION; Schema: public; Owner: gutenberg
 --
 
@@ -1130,77 +928,6 @@ $$;
 
 
 ALTER FUNCTION public.subjects_tsvec_triggerfunc() OWNER TO gutenberg;
-
---
--- Name: %; Type: OPERATOR; Schema: public; Owner: postgres
---
-
-CREATE OPERATOR public.% (
-    FUNCTION = public.similarity_op,
-    LEFTARG = text,
-    RIGHTARG = text,
-    COMMUTATOR = OPERATOR(public.%),
-    RESTRICT = contsel,
-    JOIN = contjoinsel
-);
-
-
-ALTER OPERATOR public.% (text, text) OWNER TO postgres;
-
---
--- Name: gin_trgm_ops; Type: OPERATOR FAMILY; Schema: public; Owner: postgres
---
-
-CREATE OPERATOR FAMILY public.gin_trgm_ops USING gin;
-ALTER OPERATOR FAMILY public.gin_trgm_ops USING gin ADD
-    OPERATOR 1 public.%(text,text) ,
-    FUNCTION 1 (text, text) btint4cmp(integer,integer) ,
-    FUNCTION 4 (text, text) public.gin_trgm_consistent(internal,smallint,text,integer,internal,internal);
-
-
-ALTER OPERATOR FAMILY public.gin_trgm_ops USING gin OWNER TO postgres;
-
---
--- Name: gin_trgm_ops; Type: OPERATOR CLASS; Schema: public; Owner: postgres
---
-
-CREATE OPERATOR CLASS public.gin_trgm_ops
-    FOR TYPE text USING gin FAMILY public.gin_trgm_ops AS
-    STORAGE integer ,
-    FUNCTION 2 (text, text) public.gin_extract_trgm(text,internal) ,
-    FUNCTION 3 (text, text) public.gin_extract_trgm(text,internal,smallint,internal,internal);
-
-
-ALTER OPERATOR CLASS public.gin_trgm_ops USING gin OWNER TO postgres;
-
---
--- Name: gist_trgm_ops; Type: OPERATOR FAMILY; Schema: public; Owner: postgres
---
-
-CREATE OPERATOR FAMILY public.gist_trgm_ops USING gist;
-ALTER OPERATOR FAMILY public.gist_trgm_ops USING gist ADD
-    OPERATOR 1 public.%(text,text) ,
-    FUNCTION 3 (text, text) public.gtrgm_compress(internal) ,
-    FUNCTION 4 (text, text) public.gtrgm_decompress(internal);
-
-
-ALTER OPERATOR FAMILY public.gist_trgm_ops USING gist OWNER TO postgres;
-
---
--- Name: gist_trgm_ops; Type: OPERATOR CLASS; Schema: public; Owner: postgres
---
-
-CREATE OPERATOR CLASS public.gist_trgm_ops
-    FOR TYPE text USING gist FAMILY public.gist_trgm_ops AS
-    STORAGE public.gtrgm ,
-    FUNCTION 1 (text, text) public.gtrgm_consistent(internal,text,integer,oid,internal) ,
-    FUNCTION 2 (text, text) public.gtrgm_union(bytea,internal) ,
-    FUNCTION 5 (text, text) public.gtrgm_penalty(internal,internal,internal) ,
-    FUNCTION 6 (text, text) public.gtrgm_picksplit(internal,internal) ,
-    FUNCTION 7 (text, text) public.gtrgm_same(public.gtrgm,public.gtrgm,internal);
-
-
-ALTER OPERATOR CLASS public.gist_trgm_ops USING gist OWNER TO postgres;
 
 --
 -- Name: aliases; Type: TABLE; Schema: public; Owner: gutenberg
@@ -1784,19 +1511,6 @@ ALTER SEQUENCE public.subjects_pk_seq OWNER TO gutenberg;
 
 ALTER SEQUENCE public.subjects_pk_seq OWNED BY public.subjects.pk;
 
-
---
--- Name: terms; Type: TABLE; Schema: public; Owner: gutenberg
---
-
-CREATE TABLE public.terms (
-    word text,
-    ndoc integer,
-    nentry integer
-);
-
-
-ALTER TABLE public.terms OWNER TO gutenberg;
 
 --
 -- Name: tweets; Type: TABLE; Schema: public; Owner: gutenberg
@@ -2512,13 +2226,6 @@ CREATE INDEX ix_subjects_downloads ON public.subjects USING btree (downloads);
 --
 
 CREATE INDEX ix_subjects_release_date ON public.subjects USING btree (release_date);
-
-
---
--- Name: terms_trigram_idx; Type: INDEX; Schema: public; Owner: gutenberg
---
-
-CREATE INDEX terms_trigram_idx ON public.terms USING gin (word public.gin_trgm_ops);
 
 
 --
@@ -3310,5 +3017,5 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABL
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1bNdOMPkuChSVE7xa78akeC6C2SvVDOaAig43n4O503ifg76q7jD5j0zOjLMLtg
+\unrestrict 5lhHjOAwSxYf12EiMmDlnVg1mUVGsX8dzavmUkP7mQgN5XogS7VnHDMenrHMuBA
 
