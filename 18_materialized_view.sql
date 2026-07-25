@@ -259,7 +259,14 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
-    ) AS format_extents
+    ) AS format_extents,
+    (
+        SELECT MAX(f.filemtime)
+        FROM files f
+        WHERE f.fk_books = b.pk
+          AND f.obsoleted = 0
+          AND f.diskstatus = 0
+    ) AS filemtime
 FROM books b;
 
 -- INDEXES
@@ -274,6 +281,7 @@ CREATE INDEX idx_mv_btree_birthyear_min ON mv_books_dc (min_author_birthyear) WH
 CREATE INDEX idx_mv_btree_deathyear_max ON mv_books_dc (max_author_deathyear) WHERE max_author_deathyear IS NOT NULL;
 CREATE INDEX idx_mv_btree_deathyear_min ON mv_books_dc (min_author_deathyear) WHERE min_author_deathyear IS NOT NULL;
 CREATE INDEX idx_mv_btree_release_date ON mv_books_dc (release_date DESC NULLS LAST);
+CREATE INDEX idx_mv_btree_filemtime ON mv_books_dc (filemtime DESC NULLS LAST);
 CREATE INDEX idx_mv_gin_lang ON mv_books_dc USING GIN (lang_codes);
 
 CREATE INDEX idx_mv_book_tsvec ON mv_books_dc USING GIN (tsvec);
