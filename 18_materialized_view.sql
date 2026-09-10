@@ -52,11 +52,6 @@ SELECT
         WHERE mbl.fk_books = b.pk
     ), ARRAY['en']::text[]) AS lang_codes,
 
-    EXISTS (
-        SELECT 1 FROM mn_books_categories mbc
-        WHERE mbc.fk_books = b.pk AND mbc.fk_categories IN (1, 2)
-    ) AS is_audio,
-
     (
         SELECT MAX(au.born_floor)
         FROM mn_books_authors mba
@@ -196,13 +191,6 @@ SELECT
         WHERE a.fk_books = b.pk AND a.fk_attriblist = 520
     ) AS summary,
 
-    -- Credits (MARC 508)
-    (
-        SELECT ARRAY_AGG(a.text ORDER BY a.pk)
-        FROM attributes a
-        WHERE a.fk_books = b.pk AND a.fk_attriblist = 508
-    ) AS credits,
-
     -- Reading level (MARC 908)
     (
         SELECT a.text
@@ -219,7 +207,7 @@ SELECT
         WHERE a.fk_books = b.pk AND a.fk_attriblist = 901
     ) AS coverpage,
 
-    -- Formats (files, ordered by filetype sort order)
+    -- Formats: only epub3.images (ordered by filetype sort order)
     (
         SELECT ARRAY_AGG(f.filename ORDER BY ft.sortorder, f.fk_filetypes)
         FROM files f
@@ -227,6 +215,7 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
+          AND f.fk_filetypes = 'epub3.images'
     ) AS format_filenames,
     (
         SELECT ARRAY_AGG(f.fk_filetypes ORDER BY ft.sortorder, f.fk_filetypes)
@@ -235,6 +224,7 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
+          AND f.fk_filetypes = 'epub3.images'
     ) AS format_filetypes,
     (
         SELECT ARRAY_AGG(ft.filetype ORDER BY ft.sortorder, f.fk_filetypes)
@@ -243,6 +233,7 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
+          AND f.fk_filetypes = 'epub3.images'
     ) AS format_hr_filetypes,
     (
         SELECT ARRAY_AGG(ft.mediatype ORDER BY ft.sortorder, f.fk_filetypes)
@@ -251,6 +242,7 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
+          AND f.fk_filetypes = 'epub3.images'
     ) AS format_mediatypes,
     (
         SELECT ARRAY_AGG(f.filesize ORDER BY ft.sortorder, f.fk_filetypes)
@@ -259,6 +251,7 @@ SELECT
         WHERE f.fk_books = b.pk
           AND f.obsoleted = 0
           AND f.diskstatus = 0
+          AND f.fk_filetypes = 'epub3.images'
     ) AS format_extents,
     (
         SELECT MAX(f.filemtime)
@@ -267,7 +260,11 @@ SELECT
           AND f.obsoleted = 0
           AND f.diskstatus = 0
     ) AS filemtime
-FROM books b;
+FROM books b
+WHERE NOT EXISTS (
+    SELECT 1 FROM mn_books_categories mbc
+    WHERE mbc.fk_books = b.pk AND mbc.fk_categories IN (1, 2)
+);
 
 -- INDEXES
 CREATE UNIQUE INDEX idx_mv_pk ON mv_books_dc (book_id);
@@ -275,7 +272,6 @@ CREATE UNIQUE INDEX idx_mv_pk ON mv_books_dc (book_id);
 
 CREATE INDEX idx_mv_btree_downloads ON mv_books_dc (downloads DESC);
 CREATE INDEX idx_mv_btree_copyrighted ON mv_books_dc (copyrighted);
-CREATE INDEX idx_mv_btree_is_audio ON mv_books_dc (is_audio) WHERE is_audio = true;
 CREATE INDEX idx_mv_btree_birthyear_max ON mv_books_dc (max_author_birthyear) WHERE max_author_birthyear IS NOT NULL;
 CREATE INDEX idx_mv_btree_birthyear_min ON mv_books_dc (min_author_birthyear) WHERE min_author_birthyear IS NOT NULL;
 CREATE INDEX idx_mv_btree_deathyear_max ON mv_books_dc (max_author_deathyear) WHERE max_author_deathyear IS NOT NULL;
