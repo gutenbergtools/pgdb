@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 5lhHjOAwSxYf12EiMmDlnVg1mUVGsX8dzavmUkP7mQgN5XogS7VnHDMenrHMuBA
+\restrict JjW3BuLomWrVmxhPcoQYeGTkljp6bxIxo8n9PrQiumiEQces2k2s6IgfqQW0bGZ
 
 -- Dumped from database version 16.13
--- Dumped by pg_dump version 16.13
+-- Dumped by pg_dump version 16.15
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -910,6 +910,22 @@ $$;
 ALTER FUNCTION public.pxtest(p text, t text) OWNER TO gutenberg;
 
 --
+-- Name: refresh_mv_books_dc(); Type: FUNCTION; Schema: public; Owner: gutenberg
+--
+
+CREATE FUNCTION public.refresh_mv_books_dc() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_books_dc;
+    ANALYZE mv_books_dc;
+END;
+$$;
+
+
+ALTER FUNCTION public.refresh_mv_books_dc() OWNER TO gutenberg;
+
+--
 -- Name: subjects_tsvec_triggerfunc(); Type: FUNCTION; Schema: public; Owner: gutenberg
 --
 
@@ -1431,6 +1447,171 @@ CREATE TABLE public.mn_users_permissions (
 ALTER TABLE public.mn_users_permissions OWNER TO gutenberg;
 
 --
+-- Name: roles; Type: TABLE; Schema: public; Owner: gutenberg
+--
+
+CREATE TABLE public.roles (
+    pk character varying(10) NOT NULL,
+    role character varying(240) NOT NULL,
+    CONSTRAINT roles_role CHECK (((role)::text <> (''::character varying)::text))
+);
+
+
+ALTER TABLE public.roles OWNER TO gutenberg;
+
+--
+-- Name: mv_books_dc; Type: MATERIALIZED VIEW; Schema: public; Owner: gutenberg
+--
+
+CREATE MATERIALIZED VIEW public.mv_books_dc AS
+ SELECT pk AS book_id,
+    title,
+    ( SELECT a.text
+           FROM public.attributes a
+          WHERE ((a.fk_books = b.pk) AND (a.fk_attriblist = 245))
+         LIMIT 1) AS subtitle,
+    tsvec,
+    downloads,
+    release_date,
+    copyrighted,
+    concat_ws(' '::text, title, ( SELECT string_agg((au.author)::text, ' '::text) AS string_agg
+           FROM (public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+          WHERE (mba.fk_books = b.pk)), ( SELECT string_agg((s.subject)::text, ' '::text) AS string_agg
+           FROM (public.mn_books_subjects mbs
+             JOIN public.subjects s ON ((mbs.fk_subjects = s.pk)))
+          WHERE (mbs.fk_books = b.pk)), ( SELECT string_agg(bs.bookshelf, ' '::text) AS string_agg
+           FROM (public.mn_books_bookshelves mbbs
+             JOIN public.bookshelves bs ON ((mbbs.fk_bookshelves = bs.pk)))
+          WHERE (mbbs.fk_books = b.pk))) AS book_text,
+    COALESCE(( SELECT array_agg(DISTINCT (l.pk)::text) AS array_agg
+           FROM (public.mn_books_langs mbl
+             JOIN public.langs l ON (((mbl.fk_langs)::text = (l.pk)::text)))
+          WHERE (mbl.fk_books = b.pk)), ARRAY['en'::text]) AS lang_codes,
+    ( SELECT max(au.born_floor) AS max
+           FROM (public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+          WHERE ((mba.fk_books = b.pk) AND (au.born_floor > 0))) AS max_author_birthyear,
+    ( SELECT min(au.born_floor) AS min
+           FROM (public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+          WHERE ((mba.fk_books = b.pk) AND (au.born_floor > 0))) AS min_author_birthyear,
+    ( SELECT max(au.died_floor) AS max
+           FROM (public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+          WHERE ((mba.fk_books = b.pk) AND (au.died_floor > 0))) AS max_author_deathyear,
+    ( SELECT min(au.died_floor) AS min
+           FROM (public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+          WHERE ((mba.fk_books = b.pk) AND (au.died_floor > 0))) AS min_author_deathyear,
+    COALESCE(( SELECT array_agg(lc.pk) AS array_agg
+           FROM (public.mn_books_loccs mblc
+             JOIN public.loccs lc ON (((mblc.fk_loccs)::text = (lc.pk)::text)))
+          WHERE (mblc.fk_books = b.pk)), (ARRAY[]::text[])::character varying[]) AS locc_codes,
+    ( SELECT array_agg(au.pk ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_ids,
+    ( SELECT array_agg(au.author ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_names,
+    ( SELECT array_agg(r.role ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_roles,
+    ( SELECT array_agg(au.born_floor ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_born_floor,
+    ( SELECT array_agg(au.born_ceil ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_born_ceil,
+    ( SELECT array_agg(au.died_floor ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_died_floor,
+    ( SELECT array_agg(au.died_ceil ORDER BY mba.heading, r.role, au.author) AS array_agg
+           FROM ((public.mn_books_authors mba
+             JOIN public.authors au ON ((mba.fk_authors = au.pk)))
+             JOIN public.roles r ON (((mba.fk_roles)::text = (r.pk)::text)))
+          WHERE (mba.fk_books = b.pk)) AS creator_died_ceil,
+    ( SELECT array_agg(s.pk ORDER BY s.subject) AS array_agg
+           FROM (public.mn_books_subjects mbs
+             JOIN public.subjects s ON ((mbs.fk_subjects = s.pk)))
+          WHERE (mbs.fk_books = b.pk)) AS subject_ids,
+    ( SELECT array_agg(s.subject ORDER BY s.subject) AS array_agg
+           FROM (public.mn_books_subjects mbs
+             JOIN public.subjects s ON ((mbs.fk_subjects = s.pk)))
+          WHERE (mbs.fk_books = b.pk)) AS subject_names,
+    ( SELECT array_agg(bs.pk ORDER BY bs.bookshelf) AS array_agg
+           FROM (public.mn_books_bookshelves mbbs
+             JOIN public.bookshelves bs ON ((mbbs.fk_bookshelves = bs.pk)))
+          WHERE (mbbs.fk_books = b.pk)) AS bookshelf_ids,
+    ( SELECT array_agg(bs.bookshelf ORDER BY bs.bookshelf) AS array_agg
+           FROM (public.mn_books_bookshelves mbbs
+             JOIN public.bookshelves bs ON ((mbbs.fk_bookshelves = bs.pk)))
+          WHERE (mbbs.fk_books = b.pk)) AS bookshelf_names,
+    COALESCE(( SELECT array_agg(d.dcmitype ORDER BY d.dcmitype) AS array_agg
+           FROM (public.mn_books_categories mbc
+             JOIN public.dcmitypes d ON ((mbc.fk_categories = d.pk)))
+          WHERE (mbc.fk_books = b.pk)), ARRAY['Text'::text]) AS dcmitypes,
+    ( SELECT a.text
+           FROM public.attributes a
+          WHERE ((a.fk_books = b.pk) AND (a.fk_attriblist = ANY (ARRAY[260, 264])))
+          ORDER BY a.fk_attriblist
+         LIMIT 1) AS publisher,
+    ( SELECT array_agg(a.text ORDER BY a.pk) AS array_agg
+           FROM public.attributes a
+          WHERE ((a.fk_books = b.pk) AND (a.fk_attriblist = 520))) AS summary,
+    ( SELECT a.text
+           FROM public.attributes a
+          WHERE ((a.fk_books = b.pk) AND (a.fk_attriblist = 908))
+          ORDER BY a.pk
+         LIMIT 1) AS reading_level,
+    ( SELECT array_agg(a.text ORDER BY a.pk) AS array_agg
+           FROM public.attributes a
+          WHERE ((a.fk_books = b.pk) AND (a.fk_attriblist = 901))) AS coverpage,
+    ( SELECT array_agg(f.filename ORDER BY ft.sortorder, f.fk_filetypes) AS array_agg
+           FROM (public.files f
+             LEFT JOIN public.filetypes ft ON (((f.fk_filetypes)::text = (ft.pk)::text)))
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0) AND ((f.fk_filetypes)::text = 'epub3.images'::text))) AS format_filenames,
+    ( SELECT array_agg(f.fk_filetypes ORDER BY ft.sortorder, f.fk_filetypes) AS array_agg
+           FROM (public.files f
+             LEFT JOIN public.filetypes ft ON (((f.fk_filetypes)::text = (ft.pk)::text)))
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0) AND ((f.fk_filetypes)::text = 'epub3.images'::text))) AS format_filetypes,
+    ( SELECT array_agg(ft.filetype ORDER BY ft.sortorder, f.fk_filetypes) AS array_agg
+           FROM (public.files f
+             LEFT JOIN public.filetypes ft ON (((f.fk_filetypes)::text = (ft.pk)::text)))
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0) AND ((f.fk_filetypes)::text = 'epub3.images'::text))) AS format_hr_filetypes,
+    ( SELECT array_agg(ft.mediatype ORDER BY ft.sortorder, f.fk_filetypes) AS array_agg
+           FROM (public.files f
+             LEFT JOIN public.filetypes ft ON (((f.fk_filetypes)::text = (ft.pk)::text)))
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0) AND ((f.fk_filetypes)::text = 'epub3.images'::text))) AS format_mediatypes,
+    ( SELECT array_agg(f.filesize ORDER BY ft.sortorder, f.fk_filetypes) AS array_agg
+           FROM (public.files f
+             LEFT JOIN public.filetypes ft ON (((f.fk_filetypes)::text = (ft.pk)::text)))
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0) AND ((f.fk_filetypes)::text = 'epub3.images'::text))) AS format_extents,
+    ( SELECT max(f.filemtime) AS max
+           FROM public.files f
+          WHERE ((f.fk_books = b.pk) AND (f.obsoleted = 0) AND (f.diskstatus = 0))) AS filemtime
+   FROM public.books b
+  WHERE (NOT (EXISTS ( SELECT 1
+           FROM public.mn_books_categories mbc
+          WHERE ((mbc.fk_books = b.pk) AND (mbc.fk_categories = ANY (ARRAY[1, 2]))))))
+  WITH NO DATA;
+
+
+ALTER MATERIALIZED VIEW public.mv_books_dc OWNER TO gutenberg;
+
+--
 -- Name: permissions; Type: TABLE; Schema: public; Owner: gutenberg
 --
 
@@ -1477,19 +1658,6 @@ CREATE SEQUENCE public.revision_seq
 
 
 ALTER SEQUENCE public.revision_seq OWNER TO gutenberg;
-
---
--- Name: roles; Type: TABLE; Schema: public; Owner: gutenberg
---
-
-CREATE TABLE public.roles (
-    pk character varying(10) NOT NULL,
-    role character varying(240) NOT NULL,
-    CONSTRAINT roles_role CHECK (((role)::text <> (''::character varying)::text))
-);
-
-
-ALTER TABLE public.roles OWNER TO gutenberg;
 
 --
 -- Name: subjects_pk_seq; Type: SEQUENCE; Schema: public; Owner: gutenberg
@@ -2044,6 +2212,90 @@ ALTER TABLE ONLY public.tweets
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (pk);
+
+
+--
+-- Name: idx_mv_book_tsvec; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_book_tsvec ON public.mv_books_dc USING gin (tsvec);
+
+
+--
+-- Name: idx_mv_btree_birthyear_max; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_birthyear_max ON public.mv_books_dc USING btree (max_author_birthyear) WHERE (max_author_birthyear IS NOT NULL);
+
+
+--
+-- Name: idx_mv_btree_birthyear_min; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_birthyear_min ON public.mv_books_dc USING btree (min_author_birthyear) WHERE (min_author_birthyear IS NOT NULL);
+
+
+--
+-- Name: idx_mv_btree_copyrighted; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_copyrighted ON public.mv_books_dc USING btree (copyrighted);
+
+
+--
+-- Name: idx_mv_btree_deathyear_max; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_deathyear_max ON public.mv_books_dc USING btree (max_author_deathyear) WHERE (max_author_deathyear IS NOT NULL);
+
+
+--
+-- Name: idx_mv_btree_deathyear_min; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_deathyear_min ON public.mv_books_dc USING btree (min_author_deathyear) WHERE (min_author_deathyear IS NOT NULL);
+
+
+--
+-- Name: idx_mv_btree_downloads; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_downloads ON public.mv_books_dc USING btree (downloads DESC);
+
+
+--
+-- Name: idx_mv_btree_filemtime; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_filemtime ON public.mv_books_dc USING btree (filemtime DESC NULLS LAST);
+
+
+--
+-- Name: idx_mv_btree_release_date; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_btree_release_date ON public.mv_books_dc USING btree (release_date DESC NULLS LAST);
+
+
+--
+-- Name: idx_mv_fuzzy_book; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_fuzzy_book ON public.mv_books_dc USING gist (book_text public.gist_trgm_ops);
+
+
+--
+-- Name: idx_mv_gin_lang; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE INDEX idx_mv_gin_lang ON public.mv_books_dc USING gin (lang_codes);
+
+
+--
+-- Name: idx_mv_pk; Type: INDEX; Schema: public; Owner: gutenberg
+--
+
+CREATE UNIQUE INDEX idx_mv_pk ON public.mv_books_dc USING btree (book_id);
 
 
 --
@@ -2861,6 +3113,21 @@ GRANT ALL ON TABLE public.mn_users_permissions TO backupuser;
 
 
 --
+-- Name: TABLE roles; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.roles TO PUBLIC;
+GRANT ALL ON TABLE public.roles TO backupuser;
+
+
+--
+-- Name: TABLE mv_books_dc; Type: ACL; Schema: public; Owner: gutenberg
+--
+
+GRANT SELECT ON TABLE public.mv_books_dc TO backupuser;
+
+
+--
 -- Name: TABLE permissions; Type: ACL; Schema: public; Owner: gutenberg
 --
 
@@ -2882,14 +3149,6 @@ GRANT SELECT ON SEQUENCE public.revision_seq TO backupuser;
 
 
 --
--- Name: TABLE roles; Type: ACL; Schema: public; Owner: gutenberg
---
-
-GRANT SELECT ON TABLE public.roles TO PUBLIC;
-GRANT ALL ON TABLE public.roles TO backupuser;
-
-
---
 -- Name: SEQUENCE subjects_pk_seq; Type: ACL; Schema: public; Owner: gutenberg
 --
 
@@ -2897,13 +3156,6 @@ REVOKE ALL ON SEQUENCE public.subjects_pk_seq FROM gutenberg;
 GRANT USAGE ON SEQUENCE public.subjects_pk_seq TO gutenberg;
 GRANT SELECT,UPDATE ON SEQUENCE public.subjects_pk_seq TO gutenberg WITH GRANT OPTION;
 GRANT SELECT ON SEQUENCE public.subjects_pk_seq TO backupuser;
-
-
---
--- Name: TABLE terms; Type: ACL; Schema: public; Owner: gutenberg
---
-
-GRANT SELECT ON TABLE public.terms TO backupuser;
 
 
 --
@@ -3017,5 +3269,5 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABL
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 5lhHjOAwSxYf12EiMmDlnVg1mUVGsX8dzavmUkP7mQgN5XogS7VnHDMenrHMuBA
+\unrestrict JjW3BuLomWrVmxhPcoQYeGTkljp6bxIxo8n9PrQiumiEQces2k2s6IgfqQW0bGZ
 
